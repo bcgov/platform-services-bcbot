@@ -1,6 +1,6 @@
 {
   "name": "bcbot",
-  "version": "1.0",
+  "version": "1.0.0",
   "description": "BCBot is a hubot-based chatbot for BCGov's RocketChat instance",
   "main": "bin/hubot",
   "repository": "git@github.com:bcgov/platform-services-bcbot.git",
