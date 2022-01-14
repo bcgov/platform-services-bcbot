@@ -1,10 +1,9 @@
-cluster:
-  enabled: false
-securityContext:
-  enabled: false
-containerSecurityContext:
-  enabled: false
+architecture: standalone
 master:
+  podSecurityContext:
+    enabled: false
+  containerSecurityContext:
+    enabled: false
   persistence:
     size: 1Gi
     accessModes: ['ReadWriteMany']

@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# local vars file(s)
+vars-local.yaml
+vars-local-dev.yaml
+vars-local-test.yaml
+vars-local-prod.yaml

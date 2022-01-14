@@ -1,0 +1,81 @@
+- hosts: localhost
+  vars_files:
+    vars-local-test.yaml
+  tasks:
+
+    ## Redis ##
+
+    - name: Get the Redis deployment.
+      k8s_info:
+        api_version: v1
+        kind: StatefulSet
+        name: hubot-redis-master
+        namespace: "{{ project_name }}"
+      register: redis_ss
+
+    - name: Install/upgrade redis with helm.
+      command: >
+        helm upgrade --install hubot-redis bitnami/redis -f redis-helm-values.yaml
+      when: redis_ss.resources | length == 0
+
+    ### Passwords ###
+
+    - name: Get the BCbot secret.
+      k8s_info:
+        api_version: v1
+        kind: Secret
+        name: rocketchat-bot-account-password
+        namespace: "{{ project_name }}"
+      register: bot_secret
+
+    - name: If the BCBot secret doesn't exist, make one.
+      k8s:
+        state: "{{ state | default('present') }}"
+        definition: "{{ lookup('template', './templates/bot-password.yaml.j2') }}"
+      when: bot_secret.resources | length == 0
+
+    - name: If the BCBot secret does exist, get the password.
+      set_fact:
+        artifactory_password: "{{ bot_secret.resources[0].data['BOT_PASSWORD'] | b64decode }}"
+      when: bot_secret.resources | length > 0
+
+    ## Build Image ##
+
+    - name: Create BCBot build.
+      k8s:
+        state: "{{ state | default('present') }}"
+        definition: "{{ lookup('template', './templates/bc.yaml.j2') }}"
+      when: build | bool
+
+    - name: Wait for the build to start.
+      pause:
+        seconds: 5
+      when: build | bool
+
+    - name: Get the buildconfig object.
+      k8s_info:
+        api_version: v1
+        kind: BuildConfig
+        name: "{{ name }}-{{ env }}"
+        namespace: "{{ project_name }}"
+      register: buildconfig
+      when: build | bool
+
+    - name: Get the latest build object for build "{{ name }}-{{ env }}-{{ buildconfig.resources[0].status.lastVersion }}".
+      k8s_info:
+        api_version: build.openshift.io/v1
+        kind: Build
+        name: "{{ name }}-{{ env }}-{{ buildconfig.resources[0].status.lastVersion }}"
+        namespace: "{{ project_name }}"
+      register: build_data
+      until: '"Complete" in build_data.resources[0].status.phase'
+      retries: 30
+      delay: 30
+      when: build | bool
+
+    ## Deploy ##
+
+    - name: Deploy bcbot.
+      k8s:
+        state: "{{ state | default('present') }}"
+        definition: "{{ lookup('template', './templates/dc.yaml.j2') }}"

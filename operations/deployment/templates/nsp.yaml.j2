@@ -6,7 +6,7 @@ metadata:
 spec:
   description: "allow namespace to talk to the internet."
   source:
-    - - $namespace=6e2f55-prod
+    - - $namespace={{ project_name }}
   destination:
     - - ext:network=any
 ---
@@ -17,9 +17,9 @@ metadata:
 spec:
   description: "allow namespace to talk to itself"
   source:
-    - - $namespace=6e2f55-prod
+    - - $namespace={{ project_name }}
   destination:
-    - - $namespace=6e2f55-prod
+    - - $namespace={{ project_name }}
 ---
 apiVersion: security.devops.gov.bc.ca/v1alpha1
 kind: NetworkSecurityPolicy
@@ -30,4 +30,4 @@ spec:
   destination:
   - - int:network=internal-cluster-api-endpoint
   source:
-  - - $namespace=6e2f55-prod
+  - - $namespace={{ project_name }}
