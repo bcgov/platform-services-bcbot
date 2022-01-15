@@ -1,6 +1,6 @@
 - hosts: localhost
   vars_files:
-    vars-local-test.yaml
+    vars-local-prod.yaml
   tasks:
 
     ## Redis ##

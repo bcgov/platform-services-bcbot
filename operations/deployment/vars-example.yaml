@@ -1,0 +1,21 @@
+## rename me as vars-local-[env].yaml to use in the ansible installation!
+
+name: hubot
+env: prod 
+version: v1.0.0
+
+source_repo_url: https://github.com/bcgov/platform-services-bcbot
+source_repo_branch: main
+
+build: true
+project_name: 6e2f55-prod
+bot_account_password: xxxxxxxxxx
+
+rocketchat:
+  url: "https://chat.developer.gov.bc.ca"
+  bot_username: "bcbot"
+  use_ssl: true
+  respond_to_dm: true
+  room: ""
+
+log_level: "warning"
